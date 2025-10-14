@@ -10,7 +10,7 @@ import Vapor
 
 extension User {
     struct Create: Content {
-        var email: String
+        var username: String
         var password: String
         var confirmPassword: String
     }
@@ -18,7 +18,7 @@ extension User {
 
 extension User.Create: Validatable {
     static func validations(_ validations: inout Validations) {
-        validations.add("email", as: String.self, is: .email)
+        validations.add("username", as: String.self, is: .email)
         validations.add("password", as: String.self, is: .count(8...))
     }
 }

@@ -27,6 +27,20 @@ struct UserResponseDTO: Content {
         return model
     }
 }
+struct UserRegistrationDTO: Content {
+    var username: String
+    var password: String
+    var confirmPassword: String
+    var firstName: String
+    var lastName: String
+    var address: String
+    var profilePhotoURL: String
+}
+
+struct UserRegistrationResponseDTO: Content {
+    let token: String
+    let response: UserResponseDTO
+}
 
 struct UserRequestDTO: Content {
     let firstName: String
@@ -36,3 +50,10 @@ struct UserRequestDTO: Content {
     let password: String
     let profilePhotoURL: String
 }
+
+struct UserTokenResponseDTO: Content {
+    let token: String
+    let user: UserResponseDTO
+}
+
+
