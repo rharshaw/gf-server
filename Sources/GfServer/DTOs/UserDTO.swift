@@ -9,11 +9,13 @@ import Foundation
 import Vapor
 
 struct UserResponseDTO: Content {
+    var id: UUID
     var profilePhotoURL: String
     var firstName: String
     var lastName: String
     var address: String
     var hoaBoard: Bool
+    var hoaPosition: String?
     var role: UserRole
     
     func toModel() -> User {

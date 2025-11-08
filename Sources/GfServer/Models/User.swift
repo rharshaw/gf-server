@@ -38,6 +38,9 @@ final class User: Model, Content, @unchecked Sendable {
     @Field(key: "hoa_board")
     var hoaBoard: Bool
     
+    @Field(key: "hoa_position")
+    var hoaPosition: String?
+    
     @Field(key: "profile_photo_url")
     var profilePhotoURL: String
     
@@ -46,24 +49,27 @@ final class User: Model, Content, @unchecked Sendable {
     
     init() {}
     
-    init(id: UUID? = nil, firstName: String, lastName: String, address: String, email: String, passwordHash: String, hoaBoard: Bool, profilePhotoURL: String, role: UserRole) {
+    init(id: UUID? = nil, firstName: String, lastName: String, address: String, email: String, passwordHash: String, hoaBoard: Bool, hoaPosition: String?, profilePhotoURL: String, role: UserRole) {
         self.firstName = firstName
         self.lastName = lastName
         self.address = address
         self.email = email
         self.passwordHash = passwordHash
         self.hoaBoard = hoaBoard
+        self.hoaPosition = hoaPosition
         self.profilePhotoURL = profilePhotoURL
         self.role = role
     }
     
     func toDTO() -> UserResponseDTO {
         .init(
+            id: self.id!,
             profilePhotoURL: self.profilePhotoURL,
             firstName: self.firstName,
             lastName: self.lastName,
             address: self.address,
             hoaBoard: self.hoaBoard,
+            hoaPosition: self.hoaPosition,
             role: self.role
         )
     }

@@ -23,6 +23,7 @@ public func configure(_ app: Application) async throws {
     app.migrations.add(CreateUserToken())
     app.migrations.add(CreateRegistrationToken())
     app.migrations.add(AddAddressCodeToRegistrationToken())
+    app.migrations.add(AddHOAPositionFieldForUser())
     try await app.autoMigrate()
     
     try app.register(collection: AddressCodeController())

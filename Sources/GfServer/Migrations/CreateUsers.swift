@@ -30,3 +30,17 @@ struct CreateUsers: AsyncMigration {
         try await database.schema("users").delete()
     }
 }
+
+struct AddHOAPositionFieldForUser: AsyncMigration {
+    func prepare(on database: any Database) async throws {
+        try await database.schema("users")
+        .field("hoa_position", .string)
+        .update()
+    }
+    
+    func revert(on database: any Database) async throws {
+        try await database.schema("users")
+            .deleteField("hoa_position")
+            .update()
+    }
+}

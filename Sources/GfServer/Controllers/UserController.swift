@@ -16,10 +16,28 @@ struct UserController: RouteCollection {
         
         
         users.post("create", use: create)
+        users.delete("delete", ":id", use: delete)
         passwordProtected.post("login", use: login)
         tokenProtected.get("currentuser", use: getCurrentUser)
+        tokenProtected.get("index", use: index)
     }
     
+    @Sendable func delete(req: Request) async throws -> UserResponseDTO {
+        guard let user = try await User.find(req.parameters.get("id"), on: req.db) else {
+            throw Abort(.notFound)
+        }
+        
+        try await UserToken.query(on: req.db)
+            .filter (\.$user.$id == user.id!)
+            .delete()
+        
+        try await user.delete(on: req.db)
+        return user.toDTO()
+    }
+    
+    @Sendable func index(req: Request) async throws -> [UserResponseDTO] {
+        try await User.query(on: req.db).all().map { $0.toDTO() }
+    }
     
     @Sendable func getCurrentUser(req: Request) async throws -> User {
         try req.auth.require(User.self)
@@ -40,7 +58,7 @@ struct UserController: RouteCollection {
             throw Abort(.badRequest, reason: "Passwords did not match")
         }
         
-        let user = try User(firstName: dto.firstName, lastName: dto.lastName, address: dto.address, email: create.username, passwordHash: Bcrypt.hash(create.password), hoaBoard: false, profilePhotoURL: dto.profilePhotoURL, role: .user)
+        let user = try User(firstName: dto.firstName, lastName: dto.lastName, address: dto.address, email: create.username, passwordHash: Bcrypt.hash(create.password), hoaBoard: false, hoaPosition: nil, profilePhotoURL: dto.profilePhotoURL, role: .user)
         
         try await user.save(on: req.db)
         
