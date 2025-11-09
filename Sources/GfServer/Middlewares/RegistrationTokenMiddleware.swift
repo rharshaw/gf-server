@@ -27,3 +27,16 @@ struct RegistrationTokenMiddleware: AsyncMiddleware {
         return try await next.respond(to: req)
     }
 }
+
+struct RoleProtectedMiddleware: AsyncMiddleware {
+    let allowedRoles: [UserRole]
+    
+    func respond(to request: Request, chainingTo next: any AsyncResponder) async throws -> Response {
+        let user = try request.auth.require(User.self)
+        guard allowedRoles.contains(user.role) else {
+            throw Abort(.forbidden, reason: "Unauthorized access. Please contact the developer")
+        }
+        
+        return try await next.respond(to: request)
+    }
+}

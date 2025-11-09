@@ -13,10 +13,12 @@ struct AddressCodeController: RouteCollection {
     func boot(routes: any RoutesBuilder) throws {
         let addressCodes = routes.grouped("api", "address-codes")
         let protected = addressCodes.grouped(RegistrationTokenMiddleware())
-        
-        addressCodes.post("create", use: create)
+        let tokenProtected = addressCodes.grouped(UserToken.authenticator())
+        let developerRoute = tokenProtected.grouped(RoleProtectedMiddleware(allowedRoles: [.developer]))
+
         addressCodes.get("validate", ":code", use: validate)
         protected.post("invalidate", use: invalidate)
+        developerRoute.post("create", use: create)
     }
     
     

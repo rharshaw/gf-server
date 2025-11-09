@@ -36,6 +36,9 @@ struct UserRegistrationDTO: Content {
     var firstName: String
     var lastName: String
     var address: String
+    var hoaBoard: Bool?
+    var hoaPosition: String?
+    var role: UserRole?
     var profilePhotoURL: String
 }
 
@@ -58,4 +61,18 @@ struct UserTokenResponseDTO: Content {
     let user: UserResponseDTO
 }
 
+struct UserProfileUpdateRequestDTO: Content {
+    let firstName: String?
+    let lastName: String?
+    let profilePhotoURL: String?
+    let email: String?
+    let password: String?
+}
+
+
+struct UserUpdateStatusRequestDTO: Content {
+    let hoaBoard: Bool?
+    let hoaPosition: String?
+    let role: UserRole?
+}
 
