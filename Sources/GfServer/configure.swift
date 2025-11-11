@@ -26,8 +26,14 @@ public func configure(_ app: Application) async throws {
     app.migrations.add(AddHOAPositionFieldForUser())
     try await app.autoMigrate()
     
+//    app.middleware.use(RegistrationTokenMiddleware())
+//    app.middleware.use(RoleProtectedMiddleware(allowedRoles: [.admin, .developer]))
+//    app.middleware.use(RoleProtectedMiddleware(allowedRoles: [.developer]))
+    
     try app.register(collection: AddressCodeController())
     try app.register(collection: UserController())
+    
+    
 
     // register routes
     try routes(app)
