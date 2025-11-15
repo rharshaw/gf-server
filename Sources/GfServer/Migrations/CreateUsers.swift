@@ -31,20 +31,6 @@ struct CreateUsers: AsyncMigration {
     }
 }
 
-struct AddUserProfilePhotoObjectKey: AsyncMigration {
-    func prepare(on database: any Database) async throws {
-        try await database.schema("users")
-            .field("profile_photo_object_key", .string)
-            .update()
-    }
-    
-    func revert(on database: any Database) async throws {
-        try await database.schema("users")
-            .deleteField("profile_photo_object_key")
-            .update()
-    }
-}
-
 struct AddHOAPositionFieldForUser: AsyncMigration {
     func prepare(on database: any Database) async throws {
         try await database.schema("users")
@@ -55,6 +41,6 @@ struct AddHOAPositionFieldForUser: AsyncMigration {
     func revert(on database: any Database) async throws {
         try await database.schema("users")
             .deleteField("hoa_position")
-            .delete()
+            .update()
     }
 }

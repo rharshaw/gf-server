@@ -10,7 +10,6 @@ import Vapor
 
 struct UserResponseDTO: Content {
     var id: UUID
-    var profilePhotoObjectKey: String
     var profilePhotoURL: String
     var firstName: String
     var lastName: String
@@ -41,20 +40,6 @@ struct UserRegistrationDTO: Content {
     var hoaPosition: String?
     var role: UserRole?
     var profilePhotoURL: String
-}
-
-struct UserRegistrationRequestDTO: Content {
-    var id: UUID? = nil 
-    var profilePhoto: Data
-    var username: String
-    var password: String
-    var confirmPassword: String
-    var firstName: String
-    var lastName: String
-    var address: String
-    var hoaBoard: Bool?
-    var hoaPosition: String?
-    var role: UserRole?
 }
 
 struct UserRegistrationResponseDTO: Content {
