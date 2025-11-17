@@ -127,6 +127,7 @@ struct UserController: RouteCollection {
         
         let service = S3Service(req: req)
         
+        
         let (objectKey, urlString) = try await service.uploadProfilePhoto(data: dto.profilePhoto, key: dto.id!.uuidString, contentType: "image/jpeg")
         
         let user = try User(id: dto.id, firstName: dto.firstName, lastName: dto.lastName, address: dto.address, email: create.username, passwordHash: Bcrypt.hash(create.password), hoaBoard: dto.hoaBoard ?? false, hoaPosition: dto.hoaPosition ?? nil, profilePhotoURL: urlString, profilePhotoObjectKey: objectKey, role: dto.role ?? .user)
@@ -137,7 +138,7 @@ struct UserController: RouteCollection {
         
         try await token.save(on: req.db)
         
-        return UserRegistrationResponseDTO(token: token.value, response: user.toDTO())
+        return UserRegistrationResponseDTO(token: token.value, user: user.toDTO())
     }
 }
 

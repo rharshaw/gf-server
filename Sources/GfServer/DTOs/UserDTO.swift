@@ -22,6 +22,7 @@ struct UserResponseDTO: Content {
     func toModel() -> User {
         let model = User()
                 model.firstName = self.firstName
+        model.profilePhotoObjectKey = self.profilePhotoObjectKey
         model.lastName = self.lastName
         model.address = self.address
         model.hoaBoard = self.hoaBoard
@@ -59,7 +60,7 @@ struct UserRegistrationRequestDTO: Content {
 
 struct UserRegistrationResponseDTO: Content {
     let token: String
-    let response: UserResponseDTO
+    let user: UserResponseDTO
 }
 
 struct UserRequestDTO: Content {

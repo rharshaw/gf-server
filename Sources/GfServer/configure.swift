@@ -19,7 +19,7 @@ public func configure(_ app: Application) async throws {
 
     //AWS
    let awsClient = AWSClient(credentialProvider: .static(accessKeyId: Environment.get("AWS_ACCESS_KEY_ID") ?? "", secretAccessKey: Environment.get("AWS_SECRET_ACCESS_KEY") ?? ""))
-    
+        
     app.aws.client = awsClient
     
     let s3 = S3(client: awsClient, region: .useast2)

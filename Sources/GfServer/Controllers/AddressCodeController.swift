@@ -20,7 +20,7 @@ struct AddressCodeController: RouteCollection {
         addressCodes.get("validate", ":code", use: validate)
         protected.post("invalidate", use: invalidate)
         adminProtected.get("index", use: index)
-        developerProtected.post("create", use: create)
+        addressCodes.post("create", use: create)
     }
     
     @Sendable func index(req: Request) async throws -> [AddressCodeResponseDTO] {
