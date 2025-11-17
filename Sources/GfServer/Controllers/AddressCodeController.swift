@@ -49,7 +49,7 @@ struct AddressCodeController: RouteCollection {
     @Sendable func validate(req: Request) async throws -> AddressCodeTokenResponseDTO {
         // Check if code is entered. If not, then abort.
         guard let code = req.parameters.get("code") else {
-            throw Abort(.badRequest, reason: "Missing code")
+            throw ServerError(.badRequest, reason: "No code entered")
         }
         
         // Check code against the database to see if it's present.
@@ -57,12 +57,12 @@ struct AddressCodeController: RouteCollection {
             .filter(\.$code == code)
             .first()
         else {
-            throw Abort(.notFound, reason: "Address not found with that code")
+            throw ServerError(.notFound, reason: "There is no address associated with that code. Please review the code and try again.")
         }
         
         // Address is present. Now to make sure that the address is available for use by the isValid boolean.
         guard addressCode.isValid else {
-            throw Abort(.badRequest, reason: "Address code has been used.")
+            throw ServerError(.notFound, reason: "This code is no longer valid.")
         }
         
         let tokenValue = [UInt8].random(count: 32).base64
@@ -79,11 +79,11 @@ struct AddressCodeController: RouteCollection {
     
     @Sendable func invalidate(req: Request) async throws -> AddressCodeResponseDTO {
         guard let token = req.storage[RegistrationTokenStorageKey.self] else {
-            throw Abort(.badRequest, reason: "No registration token found.")
+            throw ServerError(.badRequest, reason: "No registration token found.")
         }
         
         guard let addressCode = try await token.$addressCode.get(on: req.db) else {
-            throw Abort(.internalServerError, reason: "Token is not linked to an address code")
+            throw ServerError(.notFound, reason: "Token is not linked to an address code")
         }
         
         addressCode.isValid = false

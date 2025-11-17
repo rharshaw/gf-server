@@ -29,7 +29,7 @@ struct UserController: RouteCollection {
     
     @Sendable func updateUser(req: Request) async throws -> UserResponseDTO {
         guard let user = try await User.find(req.parameters.get("id"), on: req.db) else {
-            throw Abort(.notFound)
+            throw ServerError(.notFound, reason: "Unable to locate user")
         }
         
         let dto = try req.content.decode(UserUpdateStatusRequestDTO.self)
@@ -52,7 +52,7 @@ struct UserController: RouteCollection {
     
     @Sendable func update(req: Request) async throws -> UserResponseDTO {
         guard let user = try await User.find(req.parameters.get("id"), on: req.db) else {
-            throw Abort(.notFound)
+            throw ServerError(.notFound, reason: "Unable to locate user")
         }
         
       
@@ -87,7 +87,7 @@ struct UserController: RouteCollection {
     
     @Sendable func delete(req: Request) async throws -> UserResponseDTO {
         guard let user = try await User.find(req.parameters.get("id"), on: req.db) else {
-            throw Abort(.notFound)
+            throw ServerError(.notFound, reason: "Unable to locate user")
         }
         
         try await UserToken.query(on: req.db)
@@ -110,10 +110,14 @@ struct UserController: RouteCollection {
     }
     
     @Sendable func login(req: Request) async throws -> UserTokenResponseDTO {
-        let user = try req.auth.require(User.self)
-        let token = try user.generateToken()
-        try await token.save(on: req.db)
-        return UserTokenResponseDTO(token: token.value, user: user.toDTO())
+        do {
+            let user = try req.auth.require(User.self)
+            let token = try user.generateToken()
+            try await token.save(on: req.db)
+            return UserTokenResponseDTO(token: token.value, user: user.toDTO())
+        } catch  {
+            throw ServerError(.badRequest, reason: "Your email and/or password is incorrect. Please try again.")
+        }
     }
     
     @Sendable func create(req: Request) async throws -> UserRegistrationResponseDTO {
