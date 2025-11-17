@@ -44,15 +44,12 @@ final class User: Model, Content, @unchecked Sendable {
     @Field(key: "profile_photo_url")
     var profilePhotoURL: String
     
-    @Field(key: "profile_photo_object_key")
-    var profilePhotoObjectKey: String
-    
     @Enum(key: "role")
     var role: UserRole
     
     init() {}
     
-    init(id: UUID? = nil, firstName: String, lastName: String, address: String, email: String, passwordHash: String, hoaBoard: Bool, hoaPosition: String?, profilePhotoURL: String, profilePhotoObjectKey: String, role: UserRole) {
+    init(id: UUID? = nil, firstName: String, lastName: String, address: String, email: String, passwordHash: String, hoaBoard: Bool, hoaPosition: String?, profilePhotoURL: String, role: UserRole) {
         self.firstName = firstName
         self.lastName = lastName
         self.address = address
@@ -61,14 +58,12 @@ final class User: Model, Content, @unchecked Sendable {
         self.hoaBoard = hoaBoard
         self.hoaPosition = hoaPosition
         self.profilePhotoURL = profilePhotoURL
-        self.profilePhotoObjectKey = profilePhotoObjectKey
         self.role = role
     }
     
     func toDTO() -> UserResponseDTO {
         .init(
             id: self.id!,
-            profilePhotoObjectKey: self.profilePhotoObjectKey,
             profilePhotoURL: self.profilePhotoURL,
             firstName: self.firstName,
             lastName: self.lastName,

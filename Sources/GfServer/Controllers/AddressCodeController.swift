@@ -13,19 +13,14 @@ struct AddressCodeController: RouteCollection {
     func boot(routes: any RoutesBuilder) throws {
         let addressCodes = routes.grouped("api", "address-codes")
         let protected = addressCodes.grouped(RegistrationTokenMiddleware())
-        let tokenProtected = addressCodes.grouped(UserToken.authenticator(), User.guardMiddleware())
-        let adminProtected = tokenProtected.grouped(RoleProtectedMiddleware(allowedRoles: [.developer, .admin]))
-        let developerProtected = tokenProtected.grouped(RoleProtectedMiddleware(allowedRoles: [.developer]))
-        
+        let tokenProtected = addressCodes.grouped(UserToken.authenticator())
+        let developerRoute = tokenProtected.grouped(RoleProtectedMiddleware(allowedRoles: [.developer]))
+
         addressCodes.get("validate", ":code", use: validate)
         protected.post("invalidate", use: invalidate)
-        adminProtected.get("index", use: index)
-        developerProtected.post("create", use: create)
+        developerRoute.post("create", use: create)
     }
     
-    @Sendable func index(req: Request) async throws -> [AddressCodeResponseDTO] {
-        try await AddressCode.query(on: req.db).all().filter { $0.isValid }.map { $0.toResponseDTO() }
-    }
     
     @Sendable func create(req: Request) async throws -> AddressCodeResponseDTO {
         var generatedCode: String

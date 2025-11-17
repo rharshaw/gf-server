@@ -7,7 +7,6 @@
 
 import Vapor
 import Fluent
-import SotoS3
 
 struct UserController: RouteCollection {
     func boot(routes: any RoutesBuilder) throws {
@@ -15,6 +14,7 @@ struct UserController: RouteCollection {
         let passwordProtected = users.grouped(User.authenticator())
         let tokenProtected = users.grouped(UserToken.authenticator())
         let developerRoute = tokenProtected.grouped(RoleProtectedMiddleware(allowedRoles: [.developer]))
+        
         
         users.post("create", use: create)
         users.delete("delete", ":id", use: delete)
@@ -118,18 +118,13 @@ struct UserController: RouteCollection {
     
     @Sendable func create(req: Request) async throws -> UserRegistrationResponseDTO {
         try User.Create.validate(content: req)
-        var dto = try req.content.decode(UserRegistrationRequestDTO.self)
-        dto.id = dto.id ?? UUID()
+        let dto = try req.content.decode(UserRegistrationDTO.self)
         let create = try req.content.decode(User.Create.self)
         guard create.password == create.confirmPassword else {
             throw Abort(.badRequest, reason: "Passwords did not match")
         }
         
-        let service = S3Service(req: req)
-        
-        let (objectKey, urlString) = try await service.uploadProfilePhoto(data: dto.profilePhoto, key: dto.id!.uuidString, contentType: "image/jpeg")
-        
-        let user = try User(id: dto.id, firstName: dto.firstName, lastName: dto.lastName, address: dto.address, email: create.username, passwordHash: Bcrypt.hash(create.password), hoaBoard: dto.hoaBoard ?? false, hoaPosition: dto.hoaPosition ?? nil, profilePhotoURL: urlString, profilePhotoObjectKey: objectKey, role: dto.role ?? .user)
+        let user = try User(firstName: dto.firstName, lastName: dto.lastName, address: dto.address, email: create.username, passwordHash: Bcrypt.hash(create.password), hoaBoard: dto.hoaBoard ?? false, hoaPosition: dto.hoaPosition ?? nil, profilePhotoURL: dto.profilePhotoURL, role: dto.role ?? .user)
         
         try await user.save(on: req.db)
         
@@ -140,4 +135,3 @@ struct UserController: RouteCollection {
         return UserRegistrationResponseDTO(token: token.value, response: user.toDTO())
     }
 }
-
