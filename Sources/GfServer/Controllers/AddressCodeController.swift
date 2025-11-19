@@ -18,9 +18,9 @@ struct AddressCodeController: RouteCollection {
         let developerProtected = tokenProtected.grouped(RoleProtectedMiddleware(allowedRoles: [.developer]))
         
         addressCodes.get("validate", ":code", use: validate)
-        protected.post("invalidate", use: invalidate)
+        tokenProtected.post("invalidate", ":code", use: invalidate)
         adminProtected.get("index", use: index)
-        developerProtected.post("create", use: create)
+        addressCodes.post("create", use: create)
     }
     
     @Sendable func index(req: Request) async throws -> [AddressCodeResponseDTO] {
@@ -54,7 +54,7 @@ struct AddressCodeController: RouteCollection {
     @Sendable func validate(req: Request) async throws -> AddressCodeTokenResponseDTO {
         // Check if code is entered. If not, then abort.
         guard let code = req.parameters.get("code") else {
-            throw Abort(.badRequest, reason: "Missing code")
+            throw ServerError(.badRequest, reason: "Missing code")
         }
         
         // Check code against the database to see if it's present.
@@ -62,12 +62,12 @@ struct AddressCodeController: RouteCollection {
             .filter(\.$code == code)
             .first()
         else {
-            throw Abort(.notFound, reason: "Address not found with that code")
+            throw ServerError(.badRequest, reason: "Address not found with that code")
         }
         
         // Address is present. Now to make sure that the address is available for use by the isValid boolean.
         guard addressCode.isValid else {
-            throw Abort(.badRequest, reason: "Address code has been used.")
+            throw ServerError(.badRequest, reason: "Address code has been used.")
         }
         
         let tokenValue = [UInt8].random(count: 32).base64
@@ -83,17 +83,20 @@ struct AddressCodeController: RouteCollection {
     }
     
     @Sendable func invalidate(req: Request) async throws -> AddressCodeResponseDTO {
-        guard let token = req.storage[RegistrationTokenStorageKey.self] else {
-            throw Abort(.badRequest, reason: "No registration token found.")
+        guard let code = req.parameters.get("code") else {
+            throw ServerError(.badRequest, reason: "Missing code")
         }
         
-        guard let addressCode = try await token.$addressCode.get(on: req.db) else {
-            throw Abort(.internalServerError, reason: "Token is not linked to an address code")
+        guard let addressCode = try await AddressCode.query(on: req.db)
+            .filter(\.$code == code)
+            .first()
+        else {
+            throw ServerError(.badRequest, reason: "Address not found with that code")
         }
         
         addressCode.isValid = false
         try await addressCode.save(on: req.db)
-        try await token.delete(on: req.db)
+
         return addressCode.toResponseDTO()
     }
     

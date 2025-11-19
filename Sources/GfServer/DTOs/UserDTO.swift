@@ -26,21 +26,10 @@ struct UserResponseDTO: Content {
         model.address = self.address
         model.hoaBoard = self.hoaBoard
         model.profilePhotoURL = self.profilePhotoURL
+        model.profilePhotoObjectKey = self.profilePhotoObjectKey
         model.role = self.role
         return model
     }
-}
-struct UserRegistrationDTO: Content {
-    var username: String
-    var password: String
-    var confirmPassword: String
-    var firstName: String
-    var lastName: String
-    var address: String
-    var hoaBoard: Bool?
-    var hoaPosition: String?
-    var role: UserRole?
-    var profilePhotoURL: String
 }
 
 struct UserRegistrationRequestDTO: Content {
@@ -59,7 +48,7 @@ struct UserRegistrationRequestDTO: Content {
 
 struct UserRegistrationResponseDTO: Content {
     let token: String
-    let response: UserResponseDTO
+    let user: UserResponseDTO
 }
 
 struct UserRequestDTO: Content {

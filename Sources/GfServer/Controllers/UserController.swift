@@ -110,10 +110,14 @@ struct UserController: RouteCollection {
     }
     
     @Sendable func login(req: Request) async throws -> UserTokenResponseDTO {
-        let user = try req.auth.require(User.self)
-        let token = try user.generateToken()
-        try await token.save(on: req.db)
-        return UserTokenResponseDTO(token: token.value, user: user.toDTO())
+        do {
+            let user = try req.auth.require(User.self)
+            let token = try user.generateToken()
+            try await token.save(on: req.db)
+            return UserTokenResponseDTO(token: token.value, user: user.toDTO())
+        } catch {
+            throw ServerError(.badRequest, reason: "Invalid credentials. Please check your email and password and try again.")
+        }
     }
     
     @Sendable func create(req: Request) async throws -> UserRegistrationResponseDTO {
@@ -137,7 +141,7 @@ struct UserController: RouteCollection {
         
         try await token.save(on: req.db)
         
-        return UserRegistrationResponseDTO(token: token.value, response: user.toDTO())
+        return UserRegistrationResponseDTO(token: token.value, user: user.toDTO())
     }
 }
 

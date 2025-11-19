@@ -18,7 +18,7 @@ struct S3Service {
     }
   
     func uploadProfilePhoto(data: Data, key: String, contentType: String) async throws -> (objectKey: String, presignedURL: String) {
-        let objectKey = "profilePhotos/\(key).jpg"
+        let objectKey = "profilePhotos/\(key)\(Date().timeIntervalSince1970).jpg"
         let body = AWSHTTPBody(bytes: data)
         let request = S3.PutObjectRequest(
             body: body,
